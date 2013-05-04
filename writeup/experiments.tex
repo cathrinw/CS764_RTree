@@ -1,7 +1,8 @@
 The experiments in~\cite{DBLP:conf/sigmod/Guttman84} were performed to demonstrate practicality of 
-the index structure. In modern papers rather uncommon, the experiments do not compare the structure to 
+the index structure. Uncommon in more recent papers, the experiments do not compare the structure to 
 previous structures for the same or similar purpose. Instead, two node splitting algorithms are proposed, 
-one with quadratic, another with linear runtime, and compared to each other as well as a baseline 
+one with quadratic runtime, another with linear runtime.
+These are compared to each other as well as a baseline 
 algorithm with exponential runtime (the exhaustive algorithm). Experiments are performed on a defined data set. 
 
 ``Practicality'' as demonstrated in the original paper can be phrased out as the following hypotheses: 
@@ -10,7 +11,7 @@ algorithm with exponential runtime (the exhaustive algorithm). Experiments are p
 The linear algorithm outperforms quadratic and exhaustive algorithms for insert and delete.
 
 \paragraph{Hypothesis 2}
-More strict node-fill criteria increase insert performance, but decrease delete performance.
+Stricter node-fill criteria increase insert performance, but decrease delete performance.
 
 \paragraph{Hypothesis 3}
 Search performance (CPU and number of pages touched) is insensitive to the choice of the node-split algorithm .
@@ -19,7 +20,7 @@ Search performance (CPU and number of pages touched) is insensitive to the choic
 More strict node-fill criteria produce smaller indices.
 
 \paragraph{Hypothesis 5}
-Insert and delete operation cost increases proportionally with tree height but stays mostly constant for varying tree width.
+Insert and delete operation costs increase proportionally with tree height but stays mostly constant for varying tree width.
 
 \paragraph{Hypothesis 6}
 Search cost per qualifying record decreases as the number of data records increases.
@@ -30,7 +31,8 @@ Since all data is stored in leaf nodes, space consumption increases linearly wit
 \subsection{Proxies and expected outcomes}
 Fast forward almost 30 years later, we reimplemented the R-Tree structure in C++ compiled in 32 bit mode with optimization turned off. Some implementation overhead may be created by using STL vectors for a node's entry list, as well as for any further entry list management (node splits, for example).
 
-As we do not have the original data available and to eliminate data bias, we ran experiments on two different data sets: First, on a randomly generated data set, which has positive integer values for $x$ and $y$ such that $10 < x_{\mathrm{min}} < x_{\mathrm{max}} < 1000$ and  $5 < y_{\mathrm{min}} < y_{\mathrm{max}} < 3000$. This data set contains many large, overlapping rectangles. A real world data example is our second data set taken from~\cite{Online:usppdata}, which consists of the points of populated places in the USA. The entire data set contains 15206 entries. This data has no overlapping records, but is widely distributed. We randomly sampled 1057 for the experiments for experiments relating to hypothesis 1-4, and between 1000 and 5000 for the rest of the experiments. Search rectangles resulting in 4-6\% of the data returned were randomly generated. For the delete process, we again randomized the order of entries from the initial data set and performed the deletes. In general we expect CPU times to be orders of magnitudes faster, i.e. expect to see microseconds per operation, or nanoseconds per qualifying search record. Visualizations of the data sets and the data sets overlaid by the set of search rectangles are shown in figures~\ref{fig:rdata}-\ref{fig:usdataSearch}.
+As we do not have the original data available and to eliminate data bias, we ran experiments on two different data sets: First, on a randomly generated data set, which has positive integer values for $x$ and $y$ such that $10 < x_{\mathrm{min}} < x_{\mathrm{max}} < 1000$ and  $5 < y_{\mathrm{min}} < y_{\mathrm{max}} < 3000$. This data set contains many large, overlapping rectangles. A real world data example is our second data set taken from~\cite{Online:usppdata}, which consists of the points of populated places in the USA. The entire data set contains 15206 entries. This data has no overlapping records, but is widely distributed. We randomly sampled 1057 for the experiments for experiments relating to hypothesis 1-4, and between 1000 and 5000 for the rest of the experiments.
+Search rectangles designed to return 4-6\% of the data were randomly generated. For the delete process, we again randomized the order of entries from the initial data set and performed the deletes. In general we expect CPU times to be orders of magnitudes faster, i.e., we expect to see microseconds per operation, or nanoseconds per qualifying search record. Visualizations of the data sets and the data sets overlaid by the set of search rectangles are shown in figures~\ref{fig:rdata}-\ref{fig:usdataSearch}.
 
 Each described experiment was run ten times and the results averaged to eliminate system noise.
 
@@ -78,7 +80,8 @@ Each described experiment was run ten times and the results averaged to eliminat
 \paragraph{Proxy 1}
 The first experiment tests insert and delete performance of the three algorithms. We sampled the last 10\% of all insert and every 10th of all delete operations and took the average result of the operations sampled. 
 
-We expect the linear algorithm to outperform the others and the exhaustive algorithm to perform the worst. However, insert cost is mainly determined by frequency of node splits. In case the sampled insert operations contained few or no node splits, this result can be biased. In the original paper, for example, the last 10\% of insert operations were measured. In case the data set to be inserted being sorted, we could observe little to no variance for the insert operations sampled, and even encounter a surprise with the exhaustive algorithm. Given that the exhaustive algorithm will find an optimal split, further splits may not be necessary in the last 10\% of insert operations, hence it would perform equally well or even better than the linear algorithm. If the input data set is randomized, however, we expect to see the linear algorithm outperform the quadratic algorithm, which should outperform the exhaustive algorithm. For smaller page sizes, the quadratic algorithm may perform similarly well to the linear algorithm, since the overhead of reorganizing entry lists during a node split could outweigh the runtime difference of the actual list split algorithm.
+We expect the linear algorithm to outperform the others and the exhaustive algorithm to perform the worst. However, insert cost is mainly determined by frequency of node splits. In case the sampled insert operations contained few or no node splits, this result can be biased. In the original paper, for example, the last 10\% of insert operations were measured.
+In case of sorted input data, we might observe little to no variance for the insert operations sampled, and even encounter a surprise with the exhaustive algorithm. Given that the exhaustive algorithm will find an optimal split, further splits may not be necessary in the last 10\% of insert operations, hence it would perform equally well or even better than the linear algorithm. If the input data set is randomized, however, we expect to see the linear algorithm outperform the quadratic algorithm, which should outperform the exhaustive algorithm. For smaller page sizes, the quadratic algorithm may perform similarly well to the linear algorithm, since the overhead of reorganizing entry lists during a node split could outweigh the runtime difference of the actual list split algorithm.
 
 \paragraph{Proxy 2}
 The second hypothesis can be tested with the same experimental setup as the first.
@@ -93,7 +96,7 @@ For experiments testing this hypothesis we expect to see similar results for the
 \paragraph{Proxy 4}
 For testing this hypothesis, we measured the amount of memory used by trees containing the same data but built using different node-fill criteria. We did this for all three of the node split algorithms and different page sizes.
 
-We expect to see less memory consumption for trees with more strict node-fill criteria. Besides we expect to see the exhaustive algorithm to require the least amount of space (as optimal splits are achieved), with quadratic and linear algorithm possibly being tied, or the quadratic algorithm outperforming the linear one, as the random entry reorganization of the linear split algorithm can lead to a less organized tree structure. 
+We expect to see less memory consumption for trees with more strict node-fill criteria. We expect to see the exhaustive algorithm to require the least amount of space (as optimal splits are achieved), with the quadratic and linear algorithms possibly being tied, or the quadratic algorithm outperforming the linear one, as the random entry reorganization of the linear split algorithm can lead to a less organized tree structure. 
 
 \paragraph{Proxy 5}
 We measured insert and delete performance for trees built with varying numbers of elements. 
@@ -203,7 +206,7 @@ Experimental results for space consumption are shown in figure~\ref{fig:4.6}. Fo
 \label{fig:4.7}
 \end{figure}
 
-In figure~\ref{fig:4.7} we see the CPU cost for insert and delete operations plotted against the amount of data in the tree. The graph shows us that the cost stays constant across changed number of tree elements, which contradicts our hypothesis. It however supports our claims from figures~\ref{fig:4.2} and ~\ref{fig:4.3} that, given modern processor speeds, the overhead created by maintaining STL containers could make the splits insignificant. Given that we received similar plots with different data randomization, we exclude data bias as a reason.
+In figure~\ref{fig:4.7} we see the CPU cost for insert and delete operations plotted against the amount of data in the tree. The graph shows us that the cost stays constant across changed number of tree elements, which contradicts our hypothesis. It however supports our claims from figures~\ref{fig:4.2} and~\ref{fig:4.3} that, given modern processor speeds, the overhead created by maintaining STL containers could make the splits insignificant. Given that we received similar plots with different data randomization, we exclude data bias as a reason.
 
 \begin{figure}
 \centering
@@ -234,7 +237,7 @@ In figure~\ref{fig:4.7} we see the CPU cost for insert and delete operations plo
 \label{fig:4.9}
 \end{figure}
 
-Figures~\ref{fig:4.8} and \ref{fig:4.9} show search performance over change of numbers of records. We can see that the CPU cost shows some peaked variation but generally spoken remains fairly constant, a contradiction to what we see in the paper. Given that all searches return a fixed percentage of all data, it makes sense that possibly more leaf nodes have to be traversed to fulfill a search request. This assumption is supported by the graph showing the number of pages touched for different record numbers. More data stored in nodes of the same page size leads to more page traversals to retrieve fixed percentage search results. It also makes sense that the number of pages touched is higher for the sparse node-fill criterion of the linear algorithm, since this leads to a potentially larger number of leaf pages to visit in order to retrieve the final search result.
+Figures~\ref{fig:4.8} and \ref{fig:4.9} show search performance compared to the number of records. We can see that the CPU cost shows some peaked variation but generally speaking remains fairly constant, a contradiction to what we see in the paper. Given that all searches return a fixed percentage of all data, it makes sense that possibly more leaf nodes have to be traversed to fulfill a search request. This assumption is supported by the graph showing the number of pages touched for different record numbers. More data stored in nodes of the same page size leads to more page traversals to retrieve fixed percentage search results. It also makes sense that the number of pages touched is higher for the sparse node-fill criterion of the linear algorithm, since this leads to a potentially larger number of leaf pages to visit in order to retrieve the final search result.
 
 It is possible that the original paper reused the same search set for each of the trees, which is unclear from the original description. In case the percentage of data returned is not constant across all configurations, but instead the absolute number of search results is, the outcome in the original paper is entirely possible: more refined split intervals in the higher level lead to more direct paths to the leaf nodes, and in turn fewer higher-level nodes to traverse.  
 
